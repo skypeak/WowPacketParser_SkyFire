@@ -688,8 +688,10 @@ namespace WowPacketParser.Parsing.Parsers
         {
             packet.ReadGuid("Caster GUID");
             packet.ReadGuid("Target GUID");
-            packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Dispel Spell ID");
-            packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID");
+            packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Dispelling Spell ID");
+
+            for (var i = 0; packet.CanRead(); i++)
+                packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Dispelled Spell ID", i);
         }
 
         [Parser(Opcode.SMSG_TOTEM_CREATED)]
