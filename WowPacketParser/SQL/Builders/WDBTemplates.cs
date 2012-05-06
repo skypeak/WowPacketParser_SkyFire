@@ -184,24 +184,24 @@ namespace WowPacketParser.SQL.Builders
                 row.AddValue("Id", npcText.Key);
 
                 for (var i = 0; i < npcText.Value.Probabilities.Length; i++)
-                    row.AddValue("Probability" + (i + 1), npcText.Value.Probabilities[i]);
+                    row.AddValue("prob" + (i + 1), npcText.Value.Probabilities[i]);
 
                 for (var i = 0; i < npcText.Value.Texts1.Length; i++)
-                    row.AddValue("Text1_" + (i + 1), npcText.Value.Texts1[i]);
+                    row.AddValue("text1_" + (i + 1), npcText.Value.Texts1[i]);
 
                 for (var i = 0; i < npcText.Value.Texts2.Length; i++)
-                    row.AddValue("Text2_" + (i + 1), npcText.Value.Texts2[i]);
+                    row.AddValue("text2_" + (i + 1), npcText.Value.Texts2[i]);
 
                 for (var i = 0; i < npcText.Value.Languages.Length; i++)
-                    row.AddValue("Language" + (i + 1), npcText.Value.Languages[i]);
+                    row.AddValue("lang" + (i + 1), npcText.Value.Languages[i]);
 
-                for (var i = 0; i < npcText.Value.EmoteDelays[0].Length; i++)
-                    for (var j = 0; j < npcText.Value.EmoteDelays[1].Length; j++)
-                        row.AddValue("EmoteDelay" + (i + 1) + "_" + (j + 1), npcText.Value.EmoteDelays[i][j]);
+                //for (var i = 0; i < npcText.Value.EmoteDelays[0].Length; i++)
+                //    for (var j = 0; j < npcText.Value.EmoteDelays[1].Length; j++)
+                //        row.AddValue("EmoteDelay" + (i + 1) + "_" + (j + 1), npcText.Value.EmoteDelays[i][j]);
 
                 for (var i = 0; i < npcText.Value.EmoteIds[0].Length; i++)
                     for (var j = 0; j < npcText.Value.EmoteIds[1].Length; j++)
-                        row.AddValue("EmoteId" + (i + 1) + "_" + (j + 1), npcText.Value.EmoteDelays[i][j]);
+                        row.AddValue("em" + (i + 1) + "_" + (j + 1), npcText.Value.EmoteDelays[i][j]);
 
                 rows.Add(row);
             }

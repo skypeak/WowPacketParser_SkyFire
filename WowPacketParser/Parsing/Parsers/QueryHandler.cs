@@ -199,13 +199,13 @@ namespace WowPacketParser.Parsing.Parsers
             if (entry.Value) // Can be masked
                 return;
 
-            npcText.Probabilities = new float[8];
-            npcText.Texts1 = new string[8];
-            npcText.Texts2 = new string[8];
-            npcText.Languages = new Language[8];
-            npcText.EmoteDelays = new uint[8][];
-            npcText.EmoteIds = new EmoteType[8][];
-            for (var i = 0; i < 8; i++)
+            npcText.Probabilities = new float[7];
+            npcText.Texts1 = new string[7];
+            npcText.Texts2 = new string[7];
+            npcText.Languages = new Language[7];
+            npcText.EmoteDelays = new uint[7][];
+            npcText.EmoteIds = new EmoteType[7][];
+            for (var i = 0; i < 7; i++)
             {
                 npcText.Probabilities[i] = packet.ReadSingle("Probability", i);
 
