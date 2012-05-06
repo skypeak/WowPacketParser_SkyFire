@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace WowPacketParser.Misc
 {
     // By Jon Skeet (Stack Overflow), modified
-    class BiDictionary<TFirst, TSecond> : IEnumerable<KeyValuePair<TFirst, TSecond>>
+    public class BiDictionary<TFirst, TSecond> : IEnumerable<KeyValuePair<TFirst, TSecond>>
     {
         readonly IDictionary<TFirst, TSecond> _firstToSecond = new Dictionary<TFirst, TSecond>();
         readonly IDictionary<TSecond, TFirst> _secondToFirst = new Dictionary<TSecond, TFirst>();
@@ -43,16 +43,32 @@ namespace WowPacketParser.Misc
             get { return GetBySecond(second); }
         }
 
+        public bool TryGetByFirst(TFirst first, out TSecond second)
+        {
+            return _firstToSecond.TryGetValue(first, out second);
+        }
+
+        public bool TryGetBySecond(TSecond second, out TFirst first)
+        {
+            return _secondToFirst.TryGetValue(second, out first);
+        }
+
         public TSecond GetByFirst(TFirst first)
         {
             TSecond value;
-            return _firstToSecond.TryGetValue(first, out value) ? value : default(TSecond);
+            if (_firstToSecond.TryGetValue(first, out value))
+                return value;
+
+            return default(TSecond);
         }
 
         public TFirst GetBySecond(TSecond second)
         {
             TFirst value;
-            return _secondToFirst.TryGetValue(second, out value) ? value : default(TFirst);
+            if (_secondToFirst.TryGetValue(second, out value))
+                return value;
+
+            return default(TFirst);
         }
 
         public IEnumerator<KeyValuePair<TFirst, TSecond>> GetEnumerator()
