@@ -1,3 +1,5 @@
+Trinity's World of Warcraft Packet Parser Tweaked for use with SkyFire 
+
 WowPacketParser
 ========
 
@@ -10,7 +12,7 @@ Usage
 * Drag files to the executable.
 
 
-Thanks
+Thanks Trinity Team
 --------------------------------------------------
 
 - Kaelima
