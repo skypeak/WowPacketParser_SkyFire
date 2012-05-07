@@ -70,7 +70,7 @@ namespace WowPacketParser.Parsing.Parsers
 
             npcTrainer.Type = packet.ReadEnum<TrainerType>("Type", TypeCode.Int32);
 
-            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_2_0_14333))
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_0_6a_13623))
                 packet.ReadInt32("Unk Int32");
 
             var count = packet.ReadInt32("Count");
@@ -85,29 +85,28 @@ namespace WowPacketParser.Parsing.Parsers
 
                 trainerSpell.Cost = packet.ReadUInt32("Cost", i);
 
-                if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_2_0_14333))
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_0_6a_13623))
                 {
                     trainerSpell.RequiredLevel = packet.ReadByte("Required Level", i);
                     trainerSpell.RequiredSkill = packet.ReadUInt32("Required Skill", i);
                     trainerSpell.RequiredSkillLevel = packet.ReadUInt32("Required Skill Level", i);
-                    packet.ReadInt32("Chain Node 1", i);
-                    packet.ReadInt32("Chain Node 2", i);
+                    packet.ReadEntryWithName<Int32>(StoreNameType.Spell, "Chain Spell ID", i, 0);
+                    packet.ReadEntryWithName<Int32>(StoreNameType.Spell, "Chain Spell ID", i, 1);
                 }
 
                 packet.ReadInt32("Profession Dialog", i);
                 packet.ReadInt32("Profession Button", i);
 
-                if (ClientVersion.RemovedInVersion(ClientVersionBuild.V4_2_0_14333))
+                if (ClientVersion.RemovedInVersion(ClientVersionBuild.V4_0_6a_13623))
                 {
                     trainerSpell.RequiredLevel = packet.ReadByte("Required Level", i);
                     trainerSpell.RequiredSkill = packet.ReadUInt32("Required Skill", i);
                     trainerSpell.RequiredSkillLevel = packet.ReadUInt32("Required Skill Level", i);
-                    packet.ReadInt32("Chain Node 1", i);
-                    packet.ReadInt32("Chain Node 2", i);
+                    packet.ReadEntryWithName<Int32>(StoreNameType.Spell, "Chain Spell ID", i, 0);
+                    packet.ReadEntryWithName<Int32>(StoreNameType.Spell, "Chain Spell ID", i, 1);
                 }
 
-
-                if (ClientVersion.RemovedInVersion(ClientVersionBuild.V4_2_0_14333))
+                if (ClientVersion.RemovedInVersion(ClientVersionBuild.V4_0_6a_13623))
                     packet.ReadInt32("Unk Int32", i);
 
                 npcTrainer.TrainerSpells.Add(trainerSpell);
@@ -133,6 +132,8 @@ namespace WowPacketParser.Parsing.Parsers
                 var vendorItem = new VendorItem();
 
                 vendorItem.Slot = packet.ReadUInt32("Item Position", i);
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_0_3_13329))
+                    packet.ReadUInt32("Unk Uint32", i);
                 vendorItem.ItemId = (uint)packet.ReadEntryWithName<Int32>(StoreNameType.Item, "Item ID", i);
                 packet.ReadInt32("Display ID", i);
                 vendorItem.MaxCount = packet.ReadInt32("Max Count", i);
@@ -140,6 +141,8 @@ namespace WowPacketParser.Parsing.Parsers
                 packet.ReadInt32("Max Durability", i);
                 packet.ReadUInt32("Buy Count", i);
                 vendorItem.ExtendedCostId = packet.ReadUInt32("Extended Cost", i);
+                if (ClientVersion.AddedInVersion(ClientVersionBuild.V4_0_3_13329))
+                    packet.ReadByte("Unk Byte", i);
             }
 
             Storage.NpcVendors.TryAdd(guid.GetEntry(), npcVendor);
@@ -175,7 +178,6 @@ namespace WowPacketParser.Parsing.Parsers
             if (guidBytes[4] != 0) guidBytes[4] ^= packet.ReadByte();
             if (guidBytes[7] != 0) guidBytes[7] ^= packet.ReadByte();
             if (guidBytes[6] != 0) guidBytes[6] ^= packet.ReadByte();
-
 
             var guid = new Guid(BitConverter.ToUInt64(guidBytes, 0));
             packet.WriteLine("GUID: {0}", guid);
@@ -281,25 +283,16 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_HIGHEST_THREAT_UPDATE)]
         public static void HandleThreatlistUpdate(Packet packet)
         {
-            var guid = packet.ReadPackedGuid();
-            packet.WriteLine("GUID: " + guid);
+            packet.ReadPackedGuid("GUID");
 
             if (packet.Opcode == Opcodes.GetOpcode(Opcode.SMSG_HIGHEST_THREAT_UPDATE))
-            {
-                var newhigh = packet.ReadPackedGuid();
-                packet.WriteLine("New Highest: " + newhigh);
-            }
+                packet.ReadPackedGuid("New Highest");
 
-            var count = packet.ReadUInt32();
-            packet.WriteLine("Size: " + count);
+            var count = packet.ReadUInt32("Size");
             for (int i = 0; i < count; i++)
             {
                 packet.ReadPackedGuid("Hostile");
-                var threat = packet.ReadUInt32();
-                // No idea why, but this is in core. There is nothing about this in client
-                /*if (packet.Opcode == Opcode.SMSG_THREAT_UPDATE)
-                    threat *= 100;*/
-                packet.WriteLine("Threat: " + threat);
+                packet.ReadUInt32("Threat");
             }
         }
 

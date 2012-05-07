@@ -258,7 +258,7 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.SMSG_BATTLEFIELD_LIST, ClientVersionBuild.V4_0_6a_13623, ClientVersionBuild.V4_2_2_14545)]
         public static void HandleBattlefieldListServer406(Packet packet)
         {
-            packet.ReadEnum<UnknownFlags>("Flags", TypeCode.Byte); // 0x10 Already won, 0x20 all cases, 0x80 From UI
+            packet.ReadEnum<BattlegroundListFlags>("Flags", TypeCode.Byte);
             packet.ReadByte("Min level");
             packet.ReadInt32("Winner Honor Reward");
             packet.ReadGuid("GUID");
@@ -409,10 +409,10 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadBoolean("Rated");
         }
 
-        [Parser(Opcode.CMSG_REPORT_PVP_AFK)]
-        public static void HandleReportPvPAFK(Packet packet)
+        [Parser(Opcode.CMSG_BATTLEMASTER_JOIN_ARENA, ClientVersionBuild.V4_0_6a_13623)]
+        public static void HandleBattlemasterJoinArena406(Packet packet)
         {
-            packet.ReadGuid("GUID");
+            packet.ReadByte("Slot");
         }
 
         // Reading 11 Bytes in random order. Only 1st Byte seems to have data (Only seen '5')
@@ -618,6 +618,64 @@ namespace WowPacketParser.Parsing.Parsers
             }
         }
 
+        [Parser(Opcode.MSG_PVP_LOG_DATA, ClientVersionBuild.V4_0_6a_13623)]
+        public static void HandlePvPLogData406(Packet packet)
+        {
+            var Flags = packet.ReadEnum<BattlegroundUpdateFlags>("Flags", TypeCode.Byte);
+
+            if (Flags.HasAnyFlag(BattlegroundUpdateFlags.ArenaNames))
+                for (var i = 0; i < 2; ++i)
+                    packet.ReadCString("Name", i);
+
+            if (Flags.HasAnyFlag(BattlegroundUpdateFlags.ArenaScores))
+                for (var i = 0; i < 2; ++i)
+                {
+                    packet.ReadUInt32("Points Lost", i);
+                    packet.ReadUInt32("Points Gained", i);
+                    packet.ReadUInt32("Matchmaker Rating", i);
+                }
+
+            var count = packet.ReadUInt32("Score count");
+
+            if (Flags.HasAnyFlag(BattlegroundUpdateFlags.Finished))
+                packet.ReadByte("Team Winner");
+
+            int tempCount = (int)count;
+            do
+            {
+                packet.ReadByte("Player Update Flags", tempCount);
+                tempCount -= 2;
+            }
+            while (tempCount > 0);
+
+            for (var i = 0; i < count; i++)
+            {
+                packet.ReadUInt32("Damage done", i);
+
+                //if (updateFlags & 128)
+                    packet.ReadUInt32("Unk", i);
+
+                var count2 = packet.ReadUInt32("Extra values counter", i);
+
+                //if (???) Depends on read Update Flags
+                {
+                    packet.ReadUInt32("Honorable Kills", i);
+                    packet.ReadUInt32("Deaths", i);
+                    packet.ReadUInt32("Bonus Honor", i);
+                }
+
+                packet.ReadGuid("Player GUID", i);
+                packet.ReadUInt32("Killing Blows", i);
+                for (var j = 0; j < count2; j++)
+                    packet.ReadUInt32("Value", i, j);
+
+                //if (UpdateFlags & 1)
+                    packet.ReadUInt32("Unk", i);
+
+                packet.ReadUInt32("Healing done", i);
+            }
+        }
+
         [Parser(Opcode.SMSG_BATTLEFIELD_MGR_STATE_CHANGE, ClientVersionBuild.V4_0_6a_13623)]
         public static void HandleBattlefieldMgrStateChanged406(Packet packet)
         {
@@ -714,12 +772,12 @@ namespace WowPacketParser.Parsing.Parsers
 
             for (var i = 0; i < count; i++)
             {
-                packet.ReadGuid(" GUID", i);
+                packet.ReadGuid("GUID", i);
                 packet.ReadBoolean("Online", i);
                 packet.ReadCString("Name", i);
                 packet.ReadUInt32("Captain", i);
                 packet.ReadByte("Level", i);
-                packet.ReadByte("Class", i);
+                packet.ReadEnum<Class>("Class", TypeCode.Byte, i);
                 packet.ReadUInt32("Week Games", i);
                 packet.ReadUInt32("Week Win", i);
                 packet.ReadUInt32("Seasonal Games", i);
@@ -740,6 +798,33 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadUInt32("Team ID");
         }
 
+        [Parser(Opcode.CMSG_ARENA_TEAM_CREATE)]
+        public static void HandleArenaTeamCreate(Packet packet)
+        {
+            packet.ReadUInt32("Background Color");
+            packet.ReadUInt32("Icon");
+            packet.ReadUInt32("Icon Color");
+            packet.ReadUInt32("Border");
+            packet.ReadUInt32("Border Color");
+            packet.ReadUInt32("Type");
+            packet.ReadCString("Name");
+        }
+
+        [Parser(Opcode.CMSG_ARENA_TEAM_INVITE)]
+        [Parser(Opcode.CMSG_ARENA_TEAM_REMOVE)]
+        [Parser(Opcode.CMSG_ARENA_TEAM_LEADER)]
+        public static void HandleArenaTeamInvite(Packet packet)
+        {
+            packet.ReadUInt32("Tead Id");
+            packet.ReadCString("Name");
+        }
+
+        public static void HandleArenaTeamRemove(Packet packet)
+        {
+            packet.ReadUInt32("Tead Id");
+            packet.ReadCString("Name");
+        }
+
         [Parser(Opcode.SMSG_ARENA_TEAM_COMMAND_RESULT)]
         public static void HandleArenaTeamCommandResult(Packet packet)
         {
@@ -749,10 +834,18 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadUInt32("ErrorId"); // FIXME: Use enum
         }
 
+        [Parser(Opcode.SMSG_ARENA_TEAM_COMMAND_RESULT, ClientVersionBuild.V4_0_6a_13623)]
+        public static void HandleArenaTeamCommandResult406(Packet packet)
+        {
+            packet.ReadEnum<ArenaCommandResult>("Result", TypeCode.UInt32);
+            packet.ReadCString("Team Name");
+            packet.ReadCString("Player Name");
+        }
+
         [Parser(Opcode.SMSG_ARENA_TEAM_EVENT)]
         public static void HandleArenaTeamEvent(Packet packet)
         {
-            packet.ReadByte("Event"); // FIXME: Use enum
+            packet.ReadEnum<ArenaEvent>("Event", TypeCode.Byte);
             var count = packet.ReadByte("Count");
             for (var i = 0; i < count; ++i)
                 packet.ReadCString("Param", i);
@@ -814,10 +907,35 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadGuid("GUID");
         }
 
+        [Parser(Opcode.CMSG_REQUEST_RATED_BG_INFO)]
+        [Parser(Opcode.CMSG_REQUEST_PVP_OPTIONS_ENABLED)]
+        [Parser(Opcode.CMSG_BATTLEGROUND_PLAYER_POSITIONS)]
+        public static void HandleNullBattleground(Packet packet)
+        {
+        }
+
+        [Parser(Opcode.SMSG_BATTLEGROUND_PLAYER_POSITIONS)]
+        public static void HandleBattlegroundPlayerPositions(Packet packet)
+        {
+            var count1 = packet.ReadUInt32("Count 1");
+            for (var i = 0; i < count1; ++i)
+            {
+                packet.ReadGuid("GUID", i);
+                packet.ReadVector2("Position", i);
+            }
+
+            var count2 = packet.ReadUInt32("Count 2");
+            for (var i = 0; i < count2; ++i)
+            {
+                packet.ReadGuid("GUID", i);
+                packet.ReadVector2("Position", i);
+            }
+
+        }
+
         //[Parser(Opcode.SMSG_BATTLEFIELD_MGR_EJECT_PENDING)]
         //[Parser(Opcode.CMSG_BATTLEFIELD_MANAGER_ADVANCE_STATE)]
         //[Parser(Opcode.CMSG_BATTLEFIELD_MANAGER_SET_NEXT_TRANSITION_TIME)]
-        //[Parser(Opcode.SMSG_JOINED_BATTLEGROUND_QUEUE)]
         //[Parser(Opcode.SMSG_BATTLEGROUND_INFO_THROTTLED)]
         //[Parser(Opcode.SMSG_BATTLEFIELD_PORT_DENIED)]
         //[Parser(Opcode.CMSG_START_BATTLEFIELD_CHEAT)]

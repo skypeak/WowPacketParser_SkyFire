@@ -6,7 +6,6 @@ using WowPacketParser.Misc;
 using WowPacketParser.Store;
 using WowPacketParser.Store.Objects;
 
-
 namespace WowPacketParser.Parsing.Parsers
 {
     public static class QuestHandler
@@ -760,7 +759,9 @@ namespace WowPacketParser.Parsing.Parsers
         public static void HandleQuestUpdateAdd(Packet packet)
         {
             packet.ReadEntryWithName<Int32>(StoreNameType.Quest, "Quest ID");
-            packet.ReadInt32("Entry");
+            var entry = packet.ReadEntry();
+            packet.WriteLine("Entry: " + 
+                StoreGetters.GetName(entry.Value ? StoreNameType.GameObject : StoreNameType.Unit, entry.Key));
             packet.ReadInt32("Count");
             packet.ReadInt32("Required Count");
             packet.ReadGuid("GUID");
@@ -791,7 +792,6 @@ namespace WowPacketParser.Parsing.Parsers
                 }
             }
         }
-
 
         public static void HandleQuestgiverStatusMultiple(Packet packet)
         {

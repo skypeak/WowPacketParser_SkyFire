@@ -16,10 +16,11 @@ Thanks Trinity Team
 --------------------------------------------------
 
 - Kaelima
-- Nay
+- Kiper
 - Machiavelli
+- Nay
+- Rat
 - Shauren
 - Spp
-- stfx
-- Rat
 - Subv
+- stfx

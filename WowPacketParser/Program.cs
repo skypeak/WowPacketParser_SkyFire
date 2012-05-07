@@ -78,7 +78,7 @@ namespace WowPacketParser
 
                     switch (Settings.ThreadsParse)
                     {
-                        case 0: // Number of threads is automatically choosen by the Parallel library
+                        case 0: // Number of threads is automatically chosen by the Parallel library
                         {
                             packets.AsParallel().SetCulture().ForAll(packet => Handler.Parse(packet));
                             break;
@@ -197,7 +197,8 @@ namespace WowPacketParser
             if (Settings.FilterPacketNumHigh < 0)
                 throw new ConstraintException("FilterPacketNumHigh must be positive");
 
-            if (Settings.FilterPacketNumLow > Settings.FilterPacketNumHigh)
+            if (Settings.FilterPacketNumLow > 0 && Settings.FilterPacketNumHigh > 0
+                && Settings.FilterPacketNumLow > Settings.FilterPacketNumHigh)
                 throw new ConstraintException("FilterPacketNumLow must be less or equal than FilterPacketNumHigh");
 
             // Disable DB when we don't need its data (dumping to a binary file)
@@ -220,7 +221,7 @@ namespace WowPacketParser
 
             switch (Settings.ThreadsRead)
             {
-                case 0: // Number of threads is automatically choosen by the Parallel library
+                case 0: // Number of threads is automatically chosen by the Parallel library
                 {
                     files.AsParallel().SetCulture()
                         .ForAll(file =>

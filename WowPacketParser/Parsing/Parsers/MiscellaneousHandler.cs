@@ -646,12 +646,6 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadUInt32("Fade in time");
         }
 
-        [Parser(Opcode.SMSG_PROPOSE_LEVEL_GRANT)]
-        public static void HandleProposeLevelGrant(Packet packet)
-        {
-            packet.ReadPackedGuid("Guid");
-        }
-
         [Parser(Opcode.SMSG_DURABILITY_DAMAGE_DEATH)]
         public static void HandleDurabilityDamageDeath(Packet packet)
         {
@@ -697,7 +691,6 @@ namespace WowPacketParser.Parsing.Parsers
                 packet.ReadByte("unk byte");
         }
 
-
         [Parser(Opcode.SMSG_SUMMON_REQUEST)]
         public static void HandleSummonRequest(Packet packet)
         {
@@ -713,6 +706,17 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadBoolean("Accept");
         }
 
+        [Parser(Opcode.CMSG_SPELLCLICK)]
+        public static void HandleSpellClick(Packet packet)
+        {
+            packet.ReadGuid("GUID");
+        }
+
+        [Parser(Opcode.SMSG_UI_TIME)]
+        public static void HandleUITime(Packet packet)
+        {
+            packet.ReadUInt32("Time");
+        }
 
         [Parser(Opcode.SMSG_MINIGAME_STATE)]
         [Parser(Opcode.SMSG_DUEL_OUTOFBOUNDS)]
@@ -735,10 +739,8 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.CMSG_LFG_PLAYER_LOCK_INFO_REQUEST)]
         [Parser(Opcode.CMSG_LFG_PARTY_LOCK_INFO_REQUEST)]
         [Parser(Opcode.CMSG_REQUEST_RAID_INFO)]
-        [Parser(Opcode.CMSG_BATTLEFIELD_STATUS)]
         [Parser(Opcode.CMSG_LFG_GET_STATUS)]
         [Parser(Opcode.SMSG_LFG_DISABLED)]
-        [Parser(Opcode.CMSG_CHANNEL_VOICE_ON)]
         [Parser(Opcode.SMSG_COMSAT_CONNECT_FAIL)]
         [Parser(Opcode.SMSG_COMSAT_RECONNECT_TRY)]
         [Parser(Opcode.SMSG_COMSAT_DISCONNECT)]
@@ -750,7 +752,6 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.CMSG_LFG_LEAVE)]
         [Parser(Opcode.CMSG_GROUP_DISBAND)]
         [Parser(Opcode.SMSG_CANCEL_COMBAT)]
-        [Parser(Opcode.SMSG_DURABILITY_DAMAGE_DEATH)]
         [Parser(Opcode.CMSG_ATTACKSTOP)]
         [Parser(Opcode.SMSG_ATTACKSWING_NOTINRANGE)]
         [Parser(Opcode.SMSG_ATTACKSWING_BADFACING)]
