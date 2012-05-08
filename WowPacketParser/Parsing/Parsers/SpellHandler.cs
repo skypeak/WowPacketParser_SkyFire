@@ -410,7 +410,7 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadVector3("Position");
         }
 
-        [Parser(Opcode.SMSG_REMOVED_SPELL)]
+        [Parser(Opcode.SMSG_REMOVED_SPELL, ClientVersionBuild.Zero, ClientVersionBuild.V3_1_0_9767)]
         public static void HandleRemovedSpell(Packet packet)
         {
             packet.ReadEntryWithName<UInt16>(StoreNameType.Spell, "Spell ID");
@@ -541,7 +541,11 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadGuid("Caster GUID");
             packet.ReadGuid("Target GUID");
             packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID");
-            packet.ReadBoolean("Debug output");
+            if (packet.ReadBoolean("Debug output"))
+            {
+                packet.ReadSingle("Unk");
+                packet.ReadSingle("Unk");
+            }
         }
 
         [Parser(Opcode.MSG_CHANNEL_UPDATE)]
@@ -756,8 +760,21 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadGuid("Caster GUID");
             packet.ReadGuid("Target GUID");
             packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID");
-            packet.ReadInt32("Unk 1");
-            packet.ReadInt32("Unk 2");
+            packet.ReadSingle("Unk 1");
+            packet.ReadSingle("Unk 2");
+        }
+
+
+        [Parser(Opcode.SMSG_SPELL_CHANCE_PROC_LOG)]
+        public static void HandleChanceProcLog(Packet packet)
+        {
+            packet.ReadGuid("Caster GUID");
+            packet.ReadGuid("Target GUID");
+            packet.ReadEntryWithName<UInt32>(StoreNameType.Spell, "Spell ID");
+            packet.ReadSingle("unk1");
+            packet.ReadSingle("unk2");
+            packet.ReadEnum<UnknownFlags>("ProcFlags", TypeCode.UInt32);
+            packet.ReadEnum<UnknownFlags>("Flags2", TypeCode.UInt32);
         }
     }
 }
