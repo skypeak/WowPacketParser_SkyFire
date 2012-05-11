@@ -371,7 +371,7 @@ namespace WowPacketParser.Parsing.Parsers
             var bytes = packet.ReadBytes((int)remainingLength);
 
             using (var newpacket = new Packet(bytes, opcode, packet.Time, packet.Direction, packet.Number, packet.Writer, packet.FileName))
-                Handler.Parse(newpacket, isMultiple: true);
+                Handler.Parse(newpacket, true);
         }
 
         [Parser(Opcode.MSG_MOVE_TELEPORT_ACK)]
@@ -1183,9 +1183,7 @@ namespace WowPacketParser.Parsing.Parsers
                     var data = pkt.ReadBytes(size - 2);
 
                     using (var newPacket = new Packet(data, opc, pkt.Time, pkt.Direction, pkt.Number, packet.Writer, packet.FileName))
-                    {
                         Handler.Parse(newPacket, true);
-                    }
                 }
             }
 

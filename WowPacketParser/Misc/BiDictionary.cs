@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -19,6 +20,16 @@ namespace WowPacketParser.Misc
         public bool ContainsValue(TSecond value)
         {
             return _secondToFirst.ContainsKey(value);
+        }
+
+        public bool ContainsKey(TSecond key)
+        {
+            return _secondToFirst.ContainsKey(key);
+        }
+
+        public bool ContainsValue(TFirst value)
+        {
+            return _firstToSecond.ContainsKey(value);
         }
 
         public void Add(TFirst first, TSecond second)
@@ -42,6 +53,16 @@ namespace WowPacketParser.Misc
             _secondToFirst.Add(second, first);
         }
 
+        public void Add(KeyValuePair<TFirst, TSecond> item)
+        {
+            Add(item.Key, item.Value);
+        }
+
+        public void Add(KeyValuePair<TSecond,  TFirst> item)
+        {
+            Add(item.Value, item.Key);
+        }
+
         public bool Remove(TFirst key)
         {
             if (_firstToSecond.Remove(key))
@@ -56,9 +77,28 @@ namespace WowPacketParser.Misc
             return false;
         }
 
+        public bool Remove(TSecond key)
+        {
+            if (_secondToFirst.Remove(key))
+            {
+                foreach (var pair in _firstToSecond.Where(pair => Equals(pair.Value, key)))
+                {
+                    _firstToSecond.Remove(pair.Key);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public bool TryGetValue(TFirst key, out TSecond value)
         {
             return TryGetByFirst(key, out value);
+        }
+
+        public bool TryGetValue(TSecond key, out TFirst value)
+        {
+            return TryGetBySecond(key, out value);
         }
 
         TSecond IDictionary<TFirst, TSecond>.this[TFirst key]
@@ -79,7 +119,16 @@ namespace WowPacketParser.Misc
 
         public bool Remove(KeyValuePair<TFirst, TSecond> item)
         {
-            return _firstToSecond.Remove(item);
+            var invertedPair = new KeyValuePair<TSecond, TFirst>(item.Value, item.Key);
+
+            return _firstToSecond.Remove(item) && _secondToFirst.Remove(invertedPair);
+        }
+
+        public bool Remove(KeyValuePair<TSecond, TFirst> item)
+        {
+            var invertedPair = new KeyValuePair<TFirst, TSecond>(item.Value, item.Key);
+
+            return _secondToFirst.Remove(item) && _firstToSecond.Remove(invertedPair);
         }
 
         public int Count
@@ -90,11 +139,6 @@ namespace WowPacketParser.Misc
         public bool IsReadOnly
         {
             get { return _firstToSecond.IsReadOnly; }
-        }
-
-        public void Add(KeyValuePair<TFirst, TSecond> item)
-        {
-            _firstToSecond.Add(item);
         }
 
         public void Clear()
@@ -108,21 +152,26 @@ namespace WowPacketParser.Misc
             return _firstToSecond.Contains(item);
         }
 
-        public void CopyTo(KeyValuePair<TFirst, TSecond>[] array, int arrayIndex)
+        public bool Contains(KeyValuePair<TSecond, TFirst> item)
         {
-            _firstToSecond.CopyTo(array, arrayIndex);
+            return _secondToFirst.Contains(item);
         }
 
-        // Note potential ambiguity using indexers (e.g. mapping from int to int)
-        // Hence the methods as well...
+        public void CopyTo(KeyValuePair<TFirst, TSecond>[] array, int arrayIndex)
+        {
+            throw new NotImplementedException();
+        }
+
         public TSecond this[TFirst first]
         {
             get { return GetByFirst(first); }
+            set { SetByFirst(first, value); }
         }
 
         public TFirst this[TSecond second]
         {
             get { return GetBySecond(second); }
+            set { SetBySecond(second, value); }
         }
 
         public bool TryGetByFirst(TFirst first, out TSecond second)
@@ -151,6 +200,24 @@ namespace WowPacketParser.Misc
                 return value;
 
             return default(TFirst);
+        }
+
+        public void SetByFirst(TFirst key, TSecond value)
+        {
+            var oldVal = _firstToSecond[key];
+
+            if (!typeof(TSecond).IsValueType && oldVal == null)
+                return;
+
+            _firstToSecond[key] = value;
+
+            if (_secondToFirst.Remove(oldVal))
+                _secondToFirst.Add(value, key);
+        }
+
+        public void SetBySecond(TSecond key, TFirst value)
+        {
+            SetByFirst(value, key);
         }
 
         public IEnumerator<KeyValuePair<TFirst, TSecond>> GetEnumerator()

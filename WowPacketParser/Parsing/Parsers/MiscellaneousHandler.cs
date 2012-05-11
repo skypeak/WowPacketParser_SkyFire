@@ -92,8 +92,8 @@ namespace WowPacketParser.Parsing.Parsers
                 packet.Write("[{0}] ", i++);
 
                 using (var newpacket = new Packet(bytes, opcode, packet.Time, packet.Direction, packet.Number, packet.Writer, packet.FileName))
-                    Handler.Parse(newpacket, isMultiple: true);
-                //newpacket.DisposePacket();
+                    Handler.Parse(newpacket, true);
+
             }
             packet.WriteLine("}");
         }
@@ -546,9 +546,6 @@ namespace WowPacketParser.Parsing.Parsers
         {
             var counter = packet.ReadUInt32("List count");
             packet.ReadUInt32("Online count");
-
-            if (counter == 0)
-                return;
 
             for (var i = 0; i < counter; ++i)
             {

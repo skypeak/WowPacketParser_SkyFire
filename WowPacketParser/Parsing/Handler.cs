@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using WowPacketParser.Enums;
 using WowPacketParser.Enums.Version;
@@ -73,19 +71,7 @@ namespace WowPacketParser.Parsing
             return handlers;
         }
 
-        private static Dictionary<int, Action<Packet>> Handlers = LoadHandlers();
-
-        public static void WriteToFile(IEnumerable<Packet> packets, string file)
-        {
-            File.Delete(file);
-            using (var writer = new StreamWriter(file, true))
-            {
-                foreach (var packet in packets.Where(packet => packet.WriteToFile))
-                    writer.WriteLine(packet.Writer);
-
-                writer.Flush();
-            }
-        }
+        private static readonly Dictionary<int, Action<Packet>> Handlers = LoadHandlers();
 
         public static void Parse(Packet packet, bool isMultiple = false)
         {
@@ -125,7 +111,7 @@ namespace WowPacketParser.Parsing
                 }
                 catch (Exception ex)
                 {
-                    packet.WriteLine(ex.GetType());
+                    packet.WriteLine(ex.GetType().ToString());
                     packet.WriteLine(ex.Message);
                     packet.WriteLine(ex.StackTrace);
 
