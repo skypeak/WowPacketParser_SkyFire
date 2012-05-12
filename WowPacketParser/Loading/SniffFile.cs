@@ -57,12 +57,16 @@ namespace WowPacketParser.Loading
                         return;
                     }
 
+                    Store.Store.Flags = _sqlOutput;
+
                     ReadPackets();
                     ParsePackets();
 
                     if (_sqlOutput != SQLOutputFlags.None)
                         WriteSQLs();
-                    
+
+                    GC.Collect(); // Force a GC collect after parsing a file. It seems to help.
+
                     break;
                 }
                 case DumpFormatType.Pkt:
@@ -99,9 +103,14 @@ namespace WowPacketParser.Loading
 
             using (var writer = new StreamWriter(_outFileName, true))
             {
+                var i = 1;
+                var packetCount = _packets.Count;
+
                 _stats.SetStartTime(DateTime.Now);
                 foreach (var packet in _packets)
                 {
+                    ShowPercentProgress("Processing...", i++, packetCount);
+
                     // Parse the packet, adding text to Writer and stuff to the stores
                     Handler.Parse(packet);
 
@@ -122,6 +131,20 @@ namespace WowPacketParser.Loading
             Trace.WriteLine(string.Format("{0}: Saved file to '{1}'", _logPrefix, _outFileName));
             Trace.WriteLine(string.Format("{0}: {1}", _logPrefix, _stats));
         }
+
+        private static int _lastPercent = 0;
+        static void ShowPercentProgress(string message, int currElementIndex, int totalElementCount)
+        {
+            var percent = (100 * currElementIndex) / totalElementCount;
+            if (percent == _lastPercent)
+                return; // we only need to update if percentage changes otherwise we would be wasting precious resources
+            
+            _lastPercent = percent;
+
+            Console.Write("\r{0} {1}% complete", message, percent);
+            if (currElementIndex == totalElementCount)
+                Console.WriteLine();
+        }  
 
         private void SplitBinaryDump()
         {
