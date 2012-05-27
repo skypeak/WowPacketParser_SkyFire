@@ -28,8 +28,11 @@ namespace WowPacketParser.Enums.Version.V4_3_4_15595
             {Opcode.CMSG_RESET_FACTION_CHEAT, 0x4469},
             {Opcode.CMSG_UPDATE_ACCOUNT_DATA, 0x4736},
             {Opcode.CMSG_WARDEN_DATA, 0x25A2},
+			{Opcode.CMSG_RANDOMIZE_CHAR_NAME, 0x2413},
             {Opcode.MSG_SET_DUNGEON_DIFFICULTY, 0x4925},
-            {Opcode.SMSG_ACCOUNT_DATA_TIMES, 0x4B05},
+			{Opcode.MSG_MOVE_START_FORWARD, 0x6207},
+			{Opcode.MSG_MOVE_JUMP, 0x4707},
+			{Opcode.SMSG_ACCOUNT_DATA_TIMES, 0x4B05},
             {Opcode.SMSG_ADDON_INFO, 0x2C14},
             {Opcode.SMSG_ALL_ACHIEVEMENT_DATA, 0x58B1},
             {Opcode.SMSG_AURA_UPDATE, 0x6916},
@@ -76,6 +79,7 @@ namespace WowPacketParser.Enums.Version.V4_3_4_15595
             {Opcode.SMSG_TUTORIAL_FLAGS, 0x0B35},
             {Opcode.SMSG_UPDATE_OBJECT, 0x4715},
             {Opcode.SMSG_UPDATE_WORLD_STATE, 0x4816},
+			{Opcode.SMSG_RANDOMIZE_CHAR_NAME, 0x38B1},
         };
     }
 }
