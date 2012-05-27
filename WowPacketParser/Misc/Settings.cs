@@ -23,6 +23,7 @@ namespace WowPacketParser.Misc
         public static readonly string SQLFileName = GetString("SQLFileName", string.Empty);
         public static readonly bool ShowEndPrompt = GetBoolean("ShowEndPrompt", false);
         public static readonly bool LogErrors = GetBoolean("LogErrors", false);
+        public static readonly bool LogPacketErrors = GetBoolean("LogPacketErrors", false);
         public static readonly bool DebugReads = GetBoolean("DebugReads", false);
         public static readonly bool SplitOutput = GetBoolean("SplitOutput", false);
         public static readonly bool ParsingLog = GetBoolean("ParsingLog", false);
@@ -54,7 +55,7 @@ namespace WowPacketParser.Misc
                 var opt = args[i];
                 if (opt[0] != '/')
                     break;
-                
+
                 // analyze options
                 var optname = opt.Substring(1);
                 switch (optname)

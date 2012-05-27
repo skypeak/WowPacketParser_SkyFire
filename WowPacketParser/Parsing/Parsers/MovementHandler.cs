@@ -357,7 +357,7 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadGuid("GUID");
             packet.ReadEntryWithName<Int32>(StoreNameType.Spell, "Spell ID");
             packet.ReadSingle("Elevation");
-            packet.ReadSingle("Missile speed?");
+            packet.ReadSingle("Missile speed");
             packet.ReadVector3("Current Position");
             packet.ReadVector3("Targeted Position");
 
@@ -656,7 +656,7 @@ namespace WowPacketParser.Parsing.Parsers
 
             packet.WriteLine("GUID: {0}", new Guid(BitConverter.ToUInt64(guidBytes, 0)));
         }
-        
+
         [Parser(Opcode.MSG_MOVE_SET_PITCH, ClientVersionBuild.V4_2_2_14545)]
         public static void HandleMovementSetPitch422(Packet packet)
         {
@@ -1083,27 +1083,30 @@ namespace WowPacketParser.Parsing.Parsers
             packet.ReadInt32("Movement Counter");
         }
 
-        [Parser(Opcode.CMSG_MOVE_KNOCK_BACK_ACK)]
         [Parser(Opcode.CMSG_MOVE_WATER_WALK_ACK)]
         [Parser(Opcode.CMSG_MOVE_HOVER_ACK)]
         [Parser(Opcode.CMSG_MOVE_SET_CAN_FLY_ACK)]
         [Parser(Opcode.CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK)]
+        public static void HandleSpecialMoveAckMessages(Packet packet)
+        {
+            var guid = packet.ReadPackedGuid("Guid");
+            packet.ReadInt32("Movement Counter");
+            ReadMovementInfo(ref packet, guid);
+            packet.ReadSingle("Unk float");
+        }
+
+        [Parser(Opcode.CMSG_MOVE_KNOCK_BACK_ACK)]
         [Parser(Opcode.CMSG_FORCE_MOVE_UNROOT_ACK)]
         [Parser(Opcode.CMSG_FORCE_MOVE_ROOT_ACK)]
-        public static void HandleSpecialMoveAckMessages(Packet packet)
+        public static void HandleSpecialMoveAckMessages2(Packet packet)
         {
             var guid = packet.ReadPackedGuid("Guid");
             packet.ReadInt32("Movement Counter");
 
             ReadMovementInfo(ref packet, guid);
-
-            if (packet.Opcode == Opcodes.GetOpcode(Opcode.CMSG_MOVE_KNOCK_BACK_ACK))
-                return;
-
-            packet.ReadSingle("Unk float");
         }
 
-        [Parser(Opcode.SMSG_SET_PHASE_SHIFT)]
+        [Parser(Opcode.SMSG_SET_PHASE_SHIFT, ClientVersionBuild.Zero, ClientVersionBuild.V4_0_6a_13623)]
         public static void HandlePhaseShift(Packet packet)
         {
             var phaseMask = packet.ReadInt32();
@@ -1144,7 +1147,7 @@ namespace WowPacketParser.Parsing.Parsers
             packet.AddSniffData(StoreNameType.Phase, phaseMask, "PHASEMASK 406");
         }
 
-        [Parser(Opcode.SMSG_SET_PHASE_SHIFT, ClientVersionBuild.V4_2_2_14545)]
+        [Parser(Opcode.SMSG_SET_PHASE_SHIFT, ClientVersionBuild.V4_0_6a_13623, ClientVersionBuild.V4_2_2_14545)]
         public static void HandlePhaseShift422(Packet packet)
         {
             var bits = new bool[8];

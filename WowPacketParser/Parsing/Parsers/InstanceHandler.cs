@@ -83,18 +83,23 @@ namespace WowPacketParser.Parsing.Parsers
         [Parser(Opcode.MSG_RAID_TARGET_UPDATE)]
         public static void HandleRaidTargetUpdate(Packet packet)
         {
-            var type = packet.ReadSByte("Type");
-            if (type != -1 && packet.Direction == Direction.ClientToServer)
+            if (packet.Direction == Direction.ClientToServer)
             {
-                packet.ReadGuid("Target GUID");
+                var icon = packet.ReadEnum<TargetIcon>("Icon Id", TypeCode.Byte);
+                if (icon != TargetIcon.None)
+                    packet.ReadGuid("Target GUID");
+
                 return;
             }
 
-            if (type == 0)
-            {
-                packet.ReadGuid("Who GUID");
-                packet.ReadByte("Icon Id");
+            var test = packet.ReadBoolean("List target"); // false == Set Target
+            if (!test)
                 packet.ReadGuid("Target GUID");
+
+            for (int i = 0; packet.CanRead(); ++i)
+            {
+                packet.ReadEnum<TargetIcon>("Icon Id", TypeCode.Byte, i);
+                packet.ReadGuid("Guid", i);
             }
         }
 

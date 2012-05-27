@@ -1321,7 +1321,6 @@ namespace WowPacketParser.Enums.Version.V3_3_5a_12340
             {Opcode.SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT1, 0x51C},
             {Opcode.SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT2, 0x51D},
             {Opcode.SMSG_COMPRESSED_UNKNOWN_1310, 0x51E},
-            {Opcode.NUM_MSG_TYPES, 0x51F}
             // ReSharper restore InconsistentNaming
         };
     }

@@ -54,7 +54,15 @@ namespace WowPacketParser.Parsing.Parsers
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V3_0_2_9056))
                 packet.ReadInt32("Unk Int32 2");
 
-            packet.ReadInt32("Client Seed");
+            packet.ReadUInt32("Client Seed");
+
+            if (ClientVersion.AddedInVersion(ClientVersionBuild.V3_3_5a_12340))
+            {
+                // Some numbers about selected realm
+                packet.ReadInt32("Unk Int32 3");
+                packet.ReadInt32("Unk Int32 4");
+                packet.ReadInt32("Unk Int32 5");
+            }
 
             if (ClientVersion.AddedInVersion(ClientVersionBuild.V3_2_0_10192))
                 packet.ReadInt64("Unk Int64");
@@ -229,7 +237,7 @@ namespace WowPacketParser.Parsing.Parsers
                 }
             }
         }
-        
+
         [Parser(Opcode.SMSG_AUTH_RESPONSE, ClientVersionBuild.V4_3_4_15595)]
         public static void HandleAuthResponse434(Packet packet)
         {
@@ -244,9 +252,9 @@ namespace WowPacketParser.Parsing.Parsers
                 var position = packet.ReadInt32();
                 packet.WriteLine("Queue Position: " + position);
 
-                
+
             }
-            if (hasAccountInfo) 
+            if (hasAccountInfo)
             {
                 packet.ReadInt32("Billing Time Remaining");
                 packet.ReadEnum<ClientType>("Account Expansion", TypeCode.Byte);
@@ -333,7 +341,7 @@ namespace WowPacketParser.Parsing.Parsers
             packet.WriteLine("GUID: {0}", guid);
             LoginGuid = guid;
         }
-        
+
         [Parser(Opcode.CMSG_PLAYER_LOGIN, ClientVersionBuild.V4_3_3_15354, ClientVersionBuild.V4_3_4_15595)]
         public static void HandlePlayerLogin433(Packet packet)
         {
